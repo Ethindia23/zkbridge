@@ -73,7 +73,12 @@ export function Dashboard() {
     },
   ];
   const [showTokenDropdown, setShowTokenDropdown] = useState<boolean>(false);
+//   const [depositDisable, setDepositDisable] = useState<boolean>(true);
+//   const [withdrawDisable, setWithdrawDisable] = useState<boolean>(true);
   const [selectedTokenId, setSelectedTokenId] = useState<number>(0);
+  const [note, setNote] = useState<string>('');
+  const [recipient, setRecipient] = useState<string>('');
+  const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [toFromChain, setToFromChain] = useState([
     { value: 0, showDropdown: false, dropdownValues: dropdownChainsFromValues },
 
@@ -81,11 +86,10 @@ export function Dashboard() {
   ]);
 
   const amountValues = [
-
-    {label:`10 ${dropdownTokenValues[selectedTokenId].title}`},
-    {label:`100 ${dropdownTokenValues[selectedTokenId].title}`},
-    {label:`1000 ${dropdownTokenValues[selectedTokenId].title}`},
-    {label:`10000 ${dropdownTokenValues[selectedTokenId].title}`}
+    {label:`10 ${dropdownTokenValues[selectedTokenId].title}`,value:10,checked:false},
+    {label:`100 ${dropdownTokenValues[selectedTokenId].title}`,value:100,checked:false},
+    {label:`1000 ${dropdownTokenValues[selectedTokenId].title}`,value:1000,checked:false},
+    {label:`10000 ${dropdownTokenValues[selectedTokenId].title}`,value:10000,checked:false},
   ];
 
   const handleChainDropdownChange = (index: number) => {
@@ -200,14 +204,15 @@ export function Dashboard() {
               <label className=" flex gap-2 items-center text-zinc-300 text-base font-[600   ">
                 Amount <TbInfoSquareFilled color="rgb(20 184 166)" size={20} />
               </label>
-              <HorizontalRadios radioValues={amountValues}/>
+              <HorizontalRadios radioValues={amountValues} onChange={(value: any)=>{setSelectedAmount(value)}}/>
               {/* <input
                 type="number"
                 className="w-full bg-transparent border py-4 border-zinc-500 focus:border-teal-500 focus:outline-none  text-zinc-200 rounded-md p-4"
               ></input> */}
             </div>
-            <button className=" text-white rounded-md w-full py-4 bg-slate-600 font-semibold p-1  ">
-              Send
+            <button
+            className=" text-white text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  ">
+            Deposit
             </button>
           </div>
         </Tab>
@@ -224,16 +229,22 @@ export function Dashboard() {
               <label className="flex gap-2 items-center text-zinc-300 text-base font-[600   ">
                 Note <TbInfoSquareFilled color="rgb(20 184 166)" size={20} />
               </label>
-              <input className="w-full bg-transparent border py-4 border-zinc-500 focus:border-teal-500 focus:outline-none  text-zinc-200 rounded-md p-4"></input>
+              <input value={note} className="w-full bg-transparent border py-4 border-zinc-500
+               focus:border-teal-500 focus:outline-none  text-zinc-200 rounded-md p-4"
+               onChange={(e)=>setNote(e.target.value)}
+               ></input>
             </div>
             <div className="flex flex-col gap-1 w-full">
               <label className="  text-zinc-300 text-base font-[600   ">
                 Recipient Address
               </label>
-              <input className="w-full bg-transparent border py-4 border-zinc-500 focus:border-teal-500 focus:outline-none  text-zinc-200 rounded-md p-4"></input>
+              <input value={recipient} className="w-full bg-transparent border py-4
+               border-zinc-500 focus:border-teal-500 focus:outline-none 
+                text-zinc-200 rounded-md p-4"   onChange={(e)=>setRecipient(e.target.value)}></input>
             </div>
-            <button className=" text-white rounded-md w-full py-4 bg-slate-600 font-semibold p-1  ">
-              Send
+            <button 
+            className=" text-white text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  ">
+            Withdraw
             </button>
           </div>
         </Tab>

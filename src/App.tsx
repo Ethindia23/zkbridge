@@ -1,17 +1,39 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom"
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 // import Home from "./Home"
 // import About from "./About"
 // import Contact from "./Contact"
 // import Layout from "./components/Layout";
-import { Landing } from "./components/landing"
-import Navbar from "./components/navbar/Navbar"
+import { Landing } from "./components/landing";
+import Navbar from "./components/navbar/Navbar";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 import { Dashboard } from "./components/dashboard";
+import "@rainbow-me/rainbowkit/styles.css";
+import { darkTheme, getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import {sepolia,polygonMumbai } from "wagmi/chains";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
 // import {ParticleAnimation} from 'react-particle-animation'
 
 function App() {
-  const particlesInit = async (main:any) => {
+  const { chains, publicClient } = configureChains(
+    [sepolia,polygonMumbai],
+    [alchemyProvider({ apiKey: 'c63e42ee270545b423495ea9f1a230e6' }), publicProvider()]
+  );
+
+  const { connectors } = getDefaultWallets({
+    appName: "My RainbowKit App",
+    projectId: "YOUR_PROJECT_ID",
+    chains,
+  });
+
+  const wagmiConfig = createConfig({
+    autoConnect: true,
+    connectors,
+    publicClient,
+  });
+  const particlesInit = async (main: any) => {
     console.log(main);
 
     // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
@@ -19,215 +41,153 @@ function App() {
     // starting from v2 you can add only the features you need reducing the bundle size
     await loadFull(main);
   };
-  // const options = {
-  //   particles: {
-  //     color: {
-  //       value: "#FF0000",
-  //       animation: {
-  //         enable: true,
-  //         speed: 10
-  //       }
-  //     },
-  //     move: {
-  //       direction: undefined,
-  //       enable: true,
-  //       // outModes: "destroy",
-  //       path: {
-  //         clamp: false,
-  //         enable: true,
-  //         delay: {
-  //           value: 0
-  //         },
-  //         generator: "polygonPathGenerator",
-  //         options: {
-  //           sides: 6,
-  //           turnSteps: 30,
-  //           angle: 30
-  //         }
-  //       },
-  //       random: false,
-  //       speed: 3,
-  //       straight: false,
-  //       trail: {
-  //         fill: {
-  //           color: "#000"
-  //         },
-  //         length: 20,
-  //         enable: true
-  //       }
-  //     },
-  //     number: {
-  //       value: 0
-  //     },
-  //     opacity: {
-  //       value: 1
-  //     },
-  //     shape: {
-  //       type: "circle"
-  //     },
-  //     size: {
-  //       value: 2
-  //     }
-  //   },
-  //   background: {
-  //     color: "#000"
-  //   },
-  //   fullScreen: {
-  //     zIndex: -1
-  //   },
-  //   emitters: {
-  //     direction: "none",
-  //     rate: {
-  //       quantity: 1,
-  //       delay: 0.25
-  //     },
-  //     size: {
-  //       width: 0,
-  //       height: 0
-  //     },
-  //     position: {
-  //       x: 50,
-  //       y: 50
-  //     }
-  //   }
-  // };
- return (
-   <div className="App">
-     <BrowserRouter>
-     <Navbar/>
-     <Particles
-      id="tsparticles"
-      init={particlesInit}
+ 
 
-      options={{
-        "fullScreen": {
-            "enable": true,
-            "zIndex": 1
-        },
-        "particles": {
-            "number": {
-                "value": 20,
-                "density": {
-                    "enable": false,
-                    "value_area": 400
-                }
-            },
-            "color": {
-                "value": "random"
-            },
-            // "shape": {
-            //     "type": "star",
-            //     "options": {
-            //         "sides": 5
-            //     }
-            // },
-            "opacity": {
-                "value": 0.8,
-                "random": false,
-                "anim": {
-                    "enable": false,
-                    "speed": 1,
-                    "opacity_min": 0.1,
-                    "sync": false
-                }
-            },
-            "size": {
-                "value": 5,
-                "random": false,
-                "anim": {
-                    "enable": false,
-                    "speed": 40,
-                    "size_min": 0.1,
-                    "sync": false
-                }
-            },
-            "rotate": {
-                "value": 0,
-                "random": true,
-                "direction": "clockwise",
-                "animation": {
-                    "enable": true,
-                    "speed": 5,
-                    "sync": false
-                }
-            },
-            "line_linked": {
-                "enable": true,
-                "distance": 600,
-                "color": "random",
-                "opacity": 0.4,
-                "width": 2
-            },
-            // "number": {
-            //               "density": {
-            //                   "enable": true,
-            //                   "area": 600
-            //               },
-            //               "limit": 500,
-            //               "value": 150
-            //           },
-            "move": {
-                "enable": true,
-                "speed": 2,
-                "direction": "none",
-                "random": false,
-                "straight": false,
-                "out_mode": "out",
-                "attract": {
-                    "enable": false,
-                    "rotateX": 600,
-                    "rotateY": 1200
-                }
-            }
-        },
-        "interactivity": {
-            "events": {
-                "onhover": {
-                    "enable": true,
-                    "mode": ["grab"]
+ 
+ 
+ 
+  
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <RainbowKitProvider chains={chains}  theme={darkTheme({
+        accentColor: 'rgb(20 184 166)',
+      
+      })}>
+        <div className="App">
+          <BrowserRouter>
+            <Navbar />
+            <Particles
+              id="tsparticles"
+              init={particlesInit}
+              options={{
+                fullScreen: {
+                  enable: true,
+                  zIndex: 1,
                 },
-                "onclick": {
-                    "enable": false,
-                    "mode": "bubble"
+                particles: {
+                  number: {
+                    value: 20,
+                    density: {
+                      enable: false,
+                      value_area: 400,
+                    },
+                  },
+                  color: {
+                    value: "random",
+                  },
+                  // "shape": {
+                  //     "type": "star",
+                  //     "options": {
+                  //         "sides": 5
+                  //     }
+                  // },
+                  opacity: {
+                    value: 0.8,
+                    random: false,
+                    anim: {
+                      enable: false,
+                      speed: 1,
+                      opacity_min: 0.1,
+                      sync: false,
+                    },
+                  },
+                  size: {
+                    value: 5,
+                    random: false,
+                    anim: {
+                      enable: false,
+                      speed: 40,
+                      size_min: 0.1,
+                      sync: false,
+                    },
+                  },
+                  rotate: {
+                    value: 0,
+                    random: true,
+                    direction: "clockwise",
+                    animation: {
+                      enable: true,
+                      speed: 5,
+                      sync: false,
+                    },
+                  },
+                  line_linked: {
+                    enable: true,
+                    distance: 600,
+                    color: "random",
+                    opacity: 0.4,
+                    width: 2,
+                  },
+                  // "number": {
+                  //               "density": {
+                  //                   "enable": true,
+                  //                   "area": 600
+                  //               },
+                  //               "limit": 500,
+                  //               "value": 150
+                  //           },
+                  move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    attract: {
+                      enable: false,
+                      rotateX: 600,
+                      rotateY: 1200,
+                    },
+                  },
                 },
-                "resize": true
-            },
-            "modes": {
-                "grab": {
-                    "distance": 400,
-                    "line_linked": {
-                        "opacity": 1
-                    }
+                interactivity: {
+                  events: {
+                    onhover: {
+                      enable: true,
+                      mode: ["grab"],
+                    },
+                    onclick: {
+                      enable: false,
+                      mode: "bubble",
+                    },
+                    resize: true,
+                  },
+                  modes: {
+                    grab: {
+                      distance: 400,
+                      line_linked: {
+                        opacity: 1,
+                      },
+                    },
+                    bubble: {
+                      distance: 400,
+                      size: 40,
+                      duration: 2,
+                      opacity: 8,
+                      speed: 3,
+                    },
+                    repulse: {
+                      distance: 200,
+                    },
+                    push: {
+                      particles_nb: 4,
+                    },
+                    remove: {
+                      particles_nb: 2,
+                    },
+                  },
                 },
-                "bubble": {
-                    "distance": 400,
-                    "size": 40,
-                    "duration": 2,
-                    "opacity": 8,
-                    "speed": 3
+                retina_detect: true,
+                background: {
+                  color: "#111",
+                  image: "",
+                  position: "50% 50%",
+                  repeat: "no-repeat",
+                  size: "cover",
                 },
-                "repulse": {
-                    "distance": 200
-                },
-                "push": {
-                    "particles_nb": 4
-                },
-                "remove": {
-                    "particles_nb": 2
-                }
-            }
-        },
-        "retina_detect": true,
-        "background": {
-            "color": "#111",
-            "image": "",
-            "position": "50% 50%",
-            "repeat": "no-repeat",
-            "size": "cover"
-        }
-    }}
-    />
-     {/* <Particles
+              }}
+            />
+            {/* <Particles
       id="tsparticles"
       init={particlesInit}
 options={options}
@@ -377,14 +337,16 @@ options={options}
     //     }
     // }}
     /> */}
-     {/* <ParticleAnimation /> */}
-       <Routes>
-       <Route path="/" element={<Landing />} />
-       <Route path="/app" element={<Dashboard />} />
-       </Routes>
-     </BrowserRouter>
-   </div>
- )
+            {/* <ParticleAnimation /> */}
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/app" element={<Dashboard />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
 }
 
-export default App
+export default App;

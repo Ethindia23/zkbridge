@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { BsArrowRightCircle } from "react-icons/bs";
+import { Link } from "react-router-dom";
 // import { UserAuth } from "@/context/authContext";
 
 function Hero() {
@@ -51,6 +52,7 @@ function Hero() {
             alt={"launch app"}
           />
         </button> */}
+        <Link to={'/app'}>
         <button className="bg-gradient-to-r from-teal-400  to-blue-800 text-white rounded-3xl  font-semibold p-1 w-fit ">
           <span className="flex items-center text-center justify-center w-fit bg-slate-950 text-white text-xl font-bold rounded-3xl  p-3 px-28">
             Launch App
@@ -64,7 +66,7 @@ function Hero() {
           </span>
           
         </button>
-
+        </Link>
         {/* {loading ? null : !user ?  (
           <button
             onClick={handleSignIn}
