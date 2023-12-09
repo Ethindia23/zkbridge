@@ -19,7 +19,7 @@ const txHash = "0xa893c34b65d12eada6b62f63b7a5dad356dc4601155fce50ac225efef883c3
 // }
 
 // get transaction parsed events
-async function getLogs(txHash: string, chainId: number) {
+export async function getLogs(txHash: string, chainId: number) {
     const provider = new ethers.WebSocketProvider(multiChainConfig[chainId as keyof typeof multiChainConfig].url);
     const txReceipt = await provider.getTransactionReceipt(txHash);
     const iFace = new ethers.Interface(contractabi);
@@ -37,7 +37,8 @@ async function getLogs(txHash: string, chainId: number) {
     const filter = await receiverContract.filters.SuccessfulDeposit(log.args[0]);
     const receiverLogs = await receiverContract.queryFilter(filter);
     console.log("Receiver logs", receiverLogs);
+    return receiverLogs;
     
 }
-getLogs(txHash, 11155111);
+// getLogs(txHash, 11155111);
 

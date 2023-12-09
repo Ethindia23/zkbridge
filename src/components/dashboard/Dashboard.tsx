@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import EthereumSvg from "/ethereum.svg";
 // import PolygonSvg from "/polygon.svg";
 import wc from "../../witness_calculator";
@@ -13,10 +13,12 @@ import {
   usePrepareContractWrite,
   useNetwork,
   useContractWrite,
+  useWaitForTransaction,
 } from "wagmi";
 import { contractabi, multiChainConfig } from "../../config";
 import zkSnark from "snarkjs";
 import { ethers } from "ethers";
+import { getLogs } from "../../config/contractScript";
 
 const BNToBinary = (n: any) => {
   let r = BigInt(n).toString();
@@ -30,6 +32,7 @@ const BNToBinary = (n: any) => {
 
 const randomNo = () => {
   return Math.floor(Math.random() * 9000000000) + 1;
+
 };
 export function Dashboard() {
   const handleChainChange = (index: number, value: number) => {
@@ -182,6 +185,8 @@ export function Dashboard() {
   const [showNotePrompt, setShowNotePrompt] = useState<boolean>(false);
   const [showTokenDropdown, setShowTokenDropdown] = useState<boolean>(false);
   const [showTooltipContent, setShowTooltipContent] = useState<string>("");
+  const [commitmentData, setCommitmentData] = useState<BigInt>(BigInt(0));
+
   //   const [depositDisable, setDepositDisable] = useState<boolean>(true);
   //   const [withdrawDisable, setWithdrawDisable] = useState<boolean>(true);
   const [selectedTokenId, setSelectedTokenId] = useState<number>(0);
@@ -218,6 +223,7 @@ export function Dashboard() {
       checked: false,
     },
   ];
+
   console.log(selectedType);
   const { address, isConnected } = useAccount();
   const { chain, chains } = useNetwork();
@@ -225,66 +231,79 @@ export function Dashboard() {
   const from = toFromChain[0].dropdownValues[toFromChain[0].value].value;
   const to = toFromChain[1].dropdownValues[toFromChain[1].value].value;
 
-  // const { write } = useContractWrite(config)
+  const { config, error } = usePrepareContractWrite({
+    address: multiChainConfig[
+      (chain?.id || 11155111) as keyof typeof multiChainConfig
+    ].address as `0x${string}`,
+    abi: contractabi,
+    functionName: "deposit",
+    args: [
+      commitmentData,
+      to,
+      from,
+      from == to,
+      selectedType == "ccip",
+      selectedType == "relayer",
+    ],
+  });
+
+  const { write, data: transaction } = useContractWrite(config);
+  const { data, isError, isLoading, isSuccess } = useWaitForTransaction({
+    hash: transaction?.hash,
+  });
   // write?.();
 
   /* @ts-ignore */
-  console.log("chainnn", chain);
-  
 
+  useEffect(() => {
+    (async ()=>{
+      console.log(isSuccess);
 
+      console.log(transaction);
+      if(isSuccess){
+        setShowNotePrompt(true);
+        const interval = setInterval(async function () {
+          // method to be executed;
+          const logData = await getLogs(transaction?.hash as string,chain?.id || 1115511);
+          console.log(logData)
+          if(logData?.length)
+          clearInterval(interval);
+
+        }, 5000);
+       
+      
+       
+      }
+     
+    })();
+   
+  }, [isSuccess]);
   const generateProof = async (): Promise<any> => {
     // console.log(`Generating vote proof with inputs: ${input0}, ${input1}`);
-    try{
+    try {
+      let signals = {
+        secret: BNToBinary(BigInt(randomNo())).split(""),
+        nullifier: BNToBinary(BigInt(randomNo())).split(""),
+      };
+      console.log(signals)
+      const buffer = await fetch("/circuits/build/deposit.wasm");
+      console.log(buffer);
+      const depositWC = await wc(await buffer.arrayBuffer());
+      const r = await depositWC.calculateWitness(signals, 0);
+      const commitment = r[1];
+      const nullifierHash = r[2];
+      setCommitmentData(commitment);
+      console.log(commitment);
+      console.log(nullifierHash);
+     
+
+      write?.();
 
     
-    let signals = {
-      secret: BNToBinary(BigInt(randomNo())).split(""),
-      nullifier: BNToBinary(BigInt(randomNo())).split(""),
-    };
-    const buffer = await fetch("/circuits/build/deposit.wasm");
-    console.log(buffer);
-    const depositWC = await wc(await buffer.arrayBuffer());
-    const r = await depositWC.calculateWitness(signals, 0);
-    const commitment = r[1];
-    const nullifierHash = r[2];
-    console.log(commitment);
-    console.log(nullifierHash);
-    console.log(chain)
-    const provider = new ethers.BrowserProvider(window.ethereum,{name:chain?.name,chainId:chain?.id});
-    console.log(provider)
-    const signer = await provider.getSigner()
-    console.log(signer)
-    const contract = new ethers.Contract(
-      multiChainConfig[
-        (chain?.id || 11155111) as keyof typeof multiChainConfig
-      ].address,
-      contractabi,
-      signer
-    );
-  
-    console.log( commitment,
-      from,
-      to,
-      from == to,
-      selectedType == "ccip",
-      selectedType == "relayer")
-    const response = await contract.deposit(
-      commitment,
-      from,
-      to,
-      from == to,
-      selectedType == "ccip",
-      selectedType == "relayer"
-    );
 
-     await response.wait(1)
-    // console.log(response)
-    setShowNotePrompt(true);
-
-    // console.log(response);
-    }catch(e){
-      console.log(e)
+      // console.log(response);
+    } catch (e) {
+      console.log(e);
     }
     // localStorage.setItem('nullifierHash',nullifierHash.toString());
     // localStorage.setItem('commitment',commitment.toString());
@@ -329,7 +348,6 @@ export function Dashboard() {
     //   };
     // }
   };
-
   const handleChainDropdownChange = (index: number) => {
     let newArray = [...toFromChain];
     newArray[index].showDropdown = !newArray[index].showDropdown;
@@ -337,7 +355,6 @@ export function Dashboard() {
   };
 
   const handleDeposit = () => {
-   
     generateProof();
   };
   return (
@@ -539,7 +556,7 @@ export function Dashboard() {
               className="flex items-center justify-center text-white 
             text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  "
             >
-              Deposit
+             {isLoading?<Spinner/>: 'Deposit'}
               {/* <Spinner/> */}
             </button>
           </div>

@@ -48,7 +48,7 @@ function App() {
   const { chains, publicClient } = configureChains(
     [sepolia, polygonMumbai],
     [
-      alchemyProvider({ apiKey: "c63e42ee270545b423495ea9f1a230e6" }),
+      alchemyProvider({ apiKey: "P2Sc-HEUCX7ufJa8UY0DITPq7KpQTvVO" }),
       publicProvider(),
     ]
   );
