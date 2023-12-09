@@ -27,12 +27,11 @@ function Hero() {
   return (
     <div className="flex m-16 mt-20 -mb-6 mx-24 gap-8 items-center">
       <div className="flex flex-col flex-1 gap-6 ">
-        <p className="w-[35rem] text-[3.2rem] font-extrabold leading-normal text-zinc-200 ">
-          Automation tooling for Web3 with Pipechain!
+        <p className="w-[42rem] text-[3.2rem] font-extrabold leading-normal text-zinc-200 ">
+        Unleashing Seamless Cross-Chain transactions
         </p>
-        <p className=" w-[90%] text-xl font-medium leading-relaxed text-neutral-400 tracking-wide">
-          Integrate your cruicial work apps into workflows, reclaim your time,
-          and focus on impactful work.
+        <p className=" w-[92%] text-xl font-medium leading-relaxed text-neutral-400 tracking-wide">
+        Unlock the true potential of decentralized finance and blockchain interoperability with ZK Bridge – your gateway to seamless cross-chain transactions.
         </p>
         {/* <button
           className="text-white my-4 flex items-center text-xl font-bold py-4 rounded-3xl px-28 w-fit

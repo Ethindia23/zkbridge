@@ -16,7 +16,8 @@ export function Dropdown({dropdownValues}:{dropdownValues: DropdownValues[]}) {
         onClick={value?.function}
         >
           {!!value?.icon && (
-            <img src={value?.icon} alt={"hero"} />
+            
+            <img src={value?.icon} alt={"hero"} className="w-[24px] " />
           )}
             {!!value?.title && (
            <span className="text-base font-[700]">{value?.title}</span>

@@ -1,4 +1,5 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
+
 // import Home from "./Home"
 // import About from "./About"
 // import Contact from "./Contact"
@@ -9,17 +10,47 @@ import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 import { Dashboard } from "./components/dashboard";
 import "@rainbow-me/rainbowkit/styles.css";
-import { darkTheme, getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+
+import {
+  darkTheme,
+  getDefaultWallets,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import {sepolia,polygonMumbai } from "wagmi/chains";
+import { sepolia, polygonMumbai } from "wagmi/chains";
+// import { CircomJS } from "@zefi/circomjs";
+// const {CircomJS} = require("@zefi/circomjs")
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import * as snarkjs from "snarkjs";
+import { useEffect } from "react";
+// import path from "path";
 // import {ParticleAnimation} from 'react-particle-animation'
+function intTo256BigEndianString(n:any) {
+  var result = "";
+
+  for (var i = 0; i < 28; i++) {
+      result += String.fromCharCode(0x00);
+  }
+
+  result += String.fromCharCode((n >> 24) & 0xFF);
+  result += String.fromCharCode((n >> 16) & 0xFF);
+  result += String.fromCharCode((n >> 8) & 0xFF);
+  result += String.fromCharCode((n >> 0) & 0xFF);
+
+  return result;
+}
+
+
 
 function App() {
+ 
   const { chains, publicClient } = configureChains(
-    [sepolia,polygonMumbai],
-    [alchemyProvider({ apiKey: 'c63e42ee270545b423495ea9f1a230e6' }), publicProvider()]
+    [sepolia, polygonMumbai],
+    [
+      alchemyProvider({ apiKey: "c63e42ee270545b423495ea9f1a230e6" }),
+      publicProvider(),
+    ]
   );
 
   const { connectors } = getDefaultWallets({
@@ -34,25 +65,22 @@ function App() {
     publicClient,
   });
   const particlesInit = async (main: any) => {
-    console.log(main);
 
     // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
     // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
     // starting from v2 you can add only the features you need reducing the bundle size
     await loadFull(main);
   };
- 
 
- 
- 
- 
-  
+
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}  theme={darkTheme({
-        accentColor: 'rgb(20 184 166)',
-      
-      })}>
+      <RainbowKitProvider
+        chains={chains}
+        theme={darkTheme({
+          accentColor: "rgb(20 184 166)",
+        })}
+      >
         <div className="App">
           <BrowserRouter>
             <Navbar />

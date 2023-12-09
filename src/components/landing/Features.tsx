@@ -13,33 +13,33 @@ function Features() {
       >
         <img src="/feature1.png" alt={"hero"} width="220" height="200" />
         <div className="flex flex-col items-center gap-1">
-          <span className="whitespace-nowrap text-xl font-bold">Easy Automation</span>
+          <span className="whitespace-nowrap text-xl font-bold">Easy Implementation</span>
           <span className="text-md font-medium text-center">
             Easy usage and ux
           </span>
         </div>
       </div>
       <div
-        className="flex flex-col items-center gap-4 bg-teal-500 p-8 transform shadow-xl
+        className="flex flex-col items-center gap-8 bg-teal-500 p-8 transform shadow-xl
                                 transition duration-500 hover:scale-110"
       >
-        <img src="/feature2.png" alt={"hero"} width="200" height="200" />
+        <img src="/feature2.png" alt={"hero"} width="250" height="300" />
         <div className="flex flex-col items-center justify-center gap-1">
-          <span className=" whitespace-nowrap text-xl font-bold">Custom Workflow</span>
+          <span className=" whitespace-nowrap text-xl font-bold">Zk based proofs</span>
           <span className="text-md font-medium text-center">
-            Automate the busy work
+            Private user transactions
           </span>
         </div>
       </div>
-      <div className="flex flex-col items-center gap-4 bg-yellow-500 p-8 transform shadow-xl
+      <div className="flex flex-col items-center gap-6 bg-yellow-500 p-8 transform shadow-xl
                                 transition duration-500 hover:scale-110">
               <div className=" w-fit h-fit flex items-center justify-center overflow-hidden">
         <img src="/feature3.png" alt={"hero"} width="110" height="150"/>
         </div>
         <div className="flex flex-col items-center gap-1">
-          <span className=" whitespace-nowrap text-xl font-bold">Connect apps</span>
+          <span className=" whitespace-nowrap text-xl font-bold">Cross-chain</span>
           <span className="text-md font-medium text-center">
-            Support of a wide range of apps
+            Send token across any chain
           </span>
         </div>
       </div>
