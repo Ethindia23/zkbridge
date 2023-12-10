@@ -16,12 +16,10 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { contractabi, multiChainConfig } from "../../config";
-import zkSnark from "snarkjs";
-import { ethers } from "ethers";
-import { getLogs } from "../../config/contractScript";
+import { withdraw } from "../../config/contractScript";
 
 const BNToBinary = (n: any) => {
-  let r = BigInt(n).toString();
+  let r = BigInt(n).toString(2);
   let prePadding = "";
   let paddingAmount = 256 - r.length;
   for (let i = 0; i < paddingAmount; i++) {
@@ -32,7 +30,6 @@ const BNToBinary = (n: any) => {
 
 const randomNo = () => {
   return Math.floor(Math.random() * 9000000000) + 1;
-
 };
 export function Dashboard() {
   const handleChainChange = (index: number, value: number) => {
@@ -185,12 +182,17 @@ export function Dashboard() {
   const [showNotePrompt, setShowNotePrompt] = useState<boolean>(false);
   const [showTokenDropdown, setShowTokenDropdown] = useState<boolean>(false);
   const [showTooltipContent, setShowTooltipContent] = useState<string>("");
-  const [commitmentData, setCommitmentData] = useState<BigInt>(BigInt(0));
+  const [commitmentData, setCommitmentData] = useState<BigInt>(BigInt(1));
+  const [nullifierHash, setNullifierHash] = useState<BigInt>(BigInt(0));
+
+  const [secret, setSecret] = useState<string>();
+  const [nullfier, setNullifier] = useState<string>();
 
   //   const [depositDisable, setDepositDisable] = useState<boolean>(true);
   //   const [withdrawDisable, setWithdrawDisable] = useState<boolean>(true);
   const [selectedTokenId, setSelectedTokenId] = useState<number>(0);
   const [note, setNote] = useState<string>("");
+  const [withdrawData, setWithdrawData] = useState<any>([[1,1],[[1,1],[1,1]],[1,1],[1,1]]);
   const [recipient, setRecipient] = useState<string>("");
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [selectedType, setSelectedType] = useState<string>("");
@@ -230,7 +232,14 @@ export function Dashboard() {
 
   const from = toFromChain[0].dropdownValues[toFromChain[0].value].value;
   const to = toFromChain[1].dropdownValues[toFromChain[1].value].value;
-
+  console.log(
+    "chainss",
+    from,
+    to,
+    from == to,
+    selectedType == "ccip",
+    selectedType == "relayer"
+  );
   const { config, error } = usePrepareContractWrite({
     address: multiChainConfig[
       (chain?.id || 11155111) as keyof typeof multiChainConfig
@@ -239,53 +248,82 @@ export function Dashboard() {
     functionName: "deposit",
     args: [
       commitmentData,
-      to,
       from,
+      to,
       from == to,
       selectedType == "ccip",
       selectedType == "relayer",
     ],
+    value: BigInt(selectedAmount * 10 ** 18),
   });
+  console.log(chain)
+  const { config: withdrawConfig, error: withdrawError } =
+    usePrepareContractWrite({
+      address: multiChainConfig[
+        (chain?.id || 11155111) as keyof typeof multiChainConfig
+      ].address as `0x${string}`,
+      abi: contractabi,
+      functionName: "withdraw",
+      args: [withdrawData[0],withdrawData[1],withdrawData[2],withdrawData[3]],
+      enabled: withdrawData[0][0] != 1
+    });
+
+  const { write: withdrawWrite, data: withdrawTransaction ,error:e} =
+    useContractWrite(withdrawConfig);
+    console.log(e,withdrawError)
+  const { isLoading: isWithdrawLoading, isSuccess: isWithdrawSuccess } =
+    useWaitForTransaction({
+      hash: withdrawTransaction?.hash,
+    });
+
+
+
 
   const { write, data: transaction } = useContractWrite(config);
   const { data, isError, isLoading, isSuccess } = useWaitForTransaction({
     hash: transaction?.hash,
   });
-  // write?.();
+  
 
-  /* @ts-ignore */
+  // useEffect(()=>{
+  //   console.log('inuse effect',commitmentData)
+  //   console.log(commitmentData !== BigInt(0),write,error)
+
+  //   if (commitmentData !== BigInt(0)) write?.();
+  // },[commitmentData])
 
   useEffect(() => {
-    (async ()=>{
+    (async () => {
       console.log(isSuccess);
 
       console.log(transaction);
-      if(isSuccess){
-        setShowNotePrompt(true);
-        const interval = setInterval(async function () {
-          // method to be executed;
-          const logData = await getLogs(transaction?.hash as string,chain?.id || 1115511);
-          console.log(logData)
-          if(logData?.length)
-          clearInterval(interval);
+      if (isSuccess) {
+        const finalNote = {
+          secret: secret,
+          nullifier: nullfier,
+          nullifierHash: nullifierHash.toString(),
+          commitment: commitmentData.toString(),
+          txHash: transaction?.hash,
+          chainId: from,
+        };
+        console.log(finalNote,'final note');
+        setNote(btoa(JSON.stringify(finalNote)));
 
-        }, 5000);
-       
-      
-       
+        setShowNotePrompt(true);
       }
-     
     })();
-   
   }, [isSuccess]);
   const generateProof = async (): Promise<any> => {
     // console.log(`Generating vote proof with inputs: ${input0}, ${input1}`);
     try {
+      const s = BigInt(randomNo());
+      const n = BigInt(randomNo());
       let signals = {
-        secret: BNToBinary(BigInt(randomNo())).split(""),
-        nullifier: BNToBinary(BigInt(randomNo())).split(""),
+        secret: BNToBinary(s).split(""),
+        nullifier: BNToBinary(n).split(""),
       };
-      console.log(signals)
+
+      console.log(signals, "signals");
       const buffer = await fetch("/circuits/build/deposit.wasm");
       console.log(buffer);
       const depositWC = await wc(await buffer.arrayBuffer());
@@ -293,15 +331,11 @@ export function Dashboard() {
       const commitment = r[1];
       const nullifierHash = r[2];
       setCommitmentData(commitment);
-      console.log(commitment);
+      setSecret(s.toString());
+      setNullifier(n.toString());
+      setNullifierHash(nullifierHash);
+      console.log(commitment,'commit hash');
       console.log(nullifierHash);
-     
-
-      write?.();
-
-    
-
-      // console.log(response);
     } catch (e) {
       console.log(e);
     }
@@ -348,14 +382,21 @@ export function Dashboard() {
     //   };
     // }
   };
+  // console.log(commitmentData);
   const handleChainDropdownChange = (index: number) => {
     let newArray = [...toFromChain];
     newArray[index].showDropdown = !newArray[index].showDropdown;
     setToFromChain(newArray);
   };
 
-  const handleDeposit = () => {
-    generateProof();
+  const handleDeposit = async () => {
+   await generateProof();
+  };
+
+  const handleWithdraw = async () => {
+    const callData = await withdraw(note, recipient);
+    console.log(callData)
+    setWithdrawData(callData);
   };
   return (
     <div
@@ -556,7 +597,15 @@ export function Dashboard() {
               className="flex items-center justify-center text-white 
             text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  "
             >
-             {isLoading?<Spinner/>: 'Deposit'}
+              Generate Proof
+              {/* <Spinner/> */}
+            </button>
+            <button
+              onClick={()=>write?.()}
+              className="flex items-center justify-center text-white 
+            text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  "
+            >
+              {isLoading ? <Spinner /> : "Write"}
               {/* <Spinner/> */}
             </button>
           </div>
@@ -600,16 +649,28 @@ export function Dashboard() {
                 onChange={(e) => setRecipient(e.target.value)}
               ></input>
             </div>
-            <button className=" text-white text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  ">
-              Withdraw
+            <button
+              onClick={handleWithdraw}
+              className=" text-white text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  "
+            >
+               Make Withdraw
+           
             </button>
+            <button
+              onClick={()=>{console.log('in withdraw call',withdrawWrite);withdrawWrite?.()}}
+              className="flex items-center justify-center text-white text-lg rounded-md w-full py-4 bg-teal-600 font-semibold p-1  "
+            >
+                {isWithdrawLoading ? <Spinner /> : "Withdraw"}
+           
+            </button>
+            
           </div>
         </Tab>
       </Tabs>
       {showNotePrompt && (
         <Prompt
-          note="hi its a note"
-          onSubmit={() => {}}
+          note={note}
+          onSubmit={() => setShowNotePrompt(false)}
           onCancel={() => setShowNotePrompt(false)}
         />
       )}
