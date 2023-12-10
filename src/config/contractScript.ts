@@ -116,7 +116,7 @@ export const withdraw = async (proofString:string, address: any) => {
 
         console.log(proofInput, "proofInput");
 
-        const { proof, publicSignals } = await SnarkJS.groth16.fullProve(proofInput, "http://localhost:3000/circuits/build/withdraw.wasm", "http://localhost:3000/circuits/build/wd_0001.zkey");
+        const { proof, publicSignals } = await SnarkJS.groth16.fullProve(proofInput, "/circuits/build/withdraw.wasm", "/circuits/build/wd_0001.zkey");
 
         const callInputs = [
             proof.pi_a.slice(0, 2).map(utils.BN256ToHex),
