@@ -232,12 +232,12 @@ export function Dashboard() {
   const { chain, chains } = useNetwork();
 
   const from = selectedType == "ccip"?
-  toFromChain[0].dropdownValues[toFromChain[0].value].value == 80001?'16015286601757825753'
-  : toFromChain[0].dropdownValues[toFromChain[0].value].value == 11155111?'12532609583862916517'
+  toFromChain[0].dropdownValues[toFromChain[0].value].value == 11155111?'16015286601757825753'
+  : toFromChain[0].dropdownValues[toFromChain[0].value].value == 80001?'12532609583862916517'
   :toFromChain[0].dropdownValues[toFromChain[0].value].value:toFromChain[0].dropdownValues[toFromChain[0].value].value;
   const to = selectedType == "ccip"?
-  toFromChain[1].dropdownValues[toFromChain[1].value].value == 80001?'16015286601757825753'
-  : toFromChain[1].dropdownValues[toFromChain[1].value].value == 11155111?'12532609583862916517'
+  toFromChain[1].dropdownValues[toFromChain[1].value].value == 11155111?'16015286601757825753'
+  : toFromChain[1].dropdownValues[toFromChain[1].value].value == 80001?'12532609583862916517'
   :toFromChain[1].dropdownValues[toFromChain[1].value].value:toFromChain[1].dropdownValues[toFromChain[1].value].value;
   console.log(
     "chainss",
