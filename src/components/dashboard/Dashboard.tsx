@@ -99,6 +99,16 @@ export function Dashboard() {
         setShowTokenDropdown(!showTokenDropdown);
       },
     },
+    {
+      id: 4,
+      value: "0x0000000000000000000000000000000000001010",
+      title: "XDC Token",
+      icon: "scroll.png",
+      function: () => {
+        setSelectedTokenId(5);
+        setShowTokenDropdown(!showTokenDropdown);
+      },
+    },
   ];
 
   const dropdownChainsFromValues: DropdownValues[] = [
@@ -137,6 +147,13 @@ export function Dashboard() {
       icon: "scroll.png",
       function: () => handleChainChange(0, 4),
     },
+    {
+      id: 4,
+      value: 51,
+      title: "XDC Testnet",
+      icon: "scroll.png",
+      function: () => handleChainChange(0, 5),
+    },
   ];
 
   const dropdownChainsToValues: DropdownValues[] = [
@@ -174,6 +191,13 @@ export function Dashboard() {
       title: "Scroll Alpha Testnet",
       icon: "scroll.png",
       function: () => handleChainChange(1, 4),
+    },
+    {
+      id: 4,
+      value: 51,
+      title: "XDC Testnet",
+      icon: "scroll.png",
+      function: () => handleChainChange(1, 5),
     },
   ];
   const tooltipContent = {

@@ -17,7 +17,7 @@ import {
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { sepolia, polygonMumbai } from "wagmi/chains";
+import { sepolia, polygonMumbai,baseGoerli,arbitrumSepolia,xdcTestnet,scrollSepolia } from "wagmi/chains";
 // import { CircomJS } from "@zefi/circomjs";
 // const {CircomJS} = require("@zefi/circomjs")
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -46,7 +46,7 @@ function intTo256BigEndianString(n:any) {
 function App() {
  
   const { chains, publicClient } = configureChains(
-    [sepolia, polygonMumbai],
+    [sepolia, polygonMumbai,baseGoerli,arbitrumSepolia,xdcTestnet,scrollSepolia],
     [
       alchemyProvider({ apiKey: "P2Sc-HEUCX7ufJa8UY0DITPq7KpQTvVO" }),
       publicProvider(),
