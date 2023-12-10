@@ -53,6 +53,7 @@ export function Dashboard() {
       value: "0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43",
       title: "Ether",
       icon: "ethereum.svg",
+
       function: () => {
         setSelectedTokenId(0);
         setShowTokenDropdown(!showTokenDropdown);
@@ -230,8 +231,14 @@ export function Dashboard() {
   const { address, isConnected } = useAccount();
   const { chain, chains } = useNetwork();
 
-  const from = toFromChain[0].dropdownValues[toFromChain[0].value].value;
-  const to = toFromChain[1].dropdownValues[toFromChain[1].value].value;
+  const from = selectedType == "ccip"?
+  toFromChain[0].dropdownValues[toFromChain[0].value].value == 80001?'16015286601757825753'
+  : toFromChain[0].dropdownValues[toFromChain[0].value].value == 11155111?'12532609583862916517'
+  :toFromChain[0].dropdownValues[toFromChain[0].value].value:toFromChain[0].dropdownValues[toFromChain[0].value].value;
+  const to = selectedType == "ccip"?
+  toFromChain[1].dropdownValues[toFromChain[1].value].value == 80001?'16015286601757825753'
+  : toFromChain[1].dropdownValues[toFromChain[1].value].value == 11155111?'12532609583862916517'
+  :toFromChain[1].dropdownValues[toFromChain[1].value].value:toFromChain[1].dropdownValues[toFromChain[1].value].value;
   console.log(
     "chainss",
     from,
